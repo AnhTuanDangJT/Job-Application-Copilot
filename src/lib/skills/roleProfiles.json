@@ -1,0 +1,91 @@
+{
+  "Software Engineer": {
+    "requiredSkills": [
+      "Programming",
+      "Data Structures",
+      "Algorithms",
+      "Version Control",
+      "Testing",
+      "Problem Solving"
+    ],
+    "recommendedProjects": [
+      "Build a full-stack web application",
+      "Contribute to open source",
+      "Create a REST API",
+      "Implement a database design"
+    ],
+    "nextRoles": [
+      "Senior Software Engineer",
+      "Full Stack Developer",
+      "Backend Engineer",
+      "Frontend Engineer"
+    ]
+  },
+  "Full Stack Developer": {
+    "requiredSkills": [
+      "Frontend Development",
+      "Backend Development",
+      "Database Design",
+      "API Development",
+      "Version Control",
+      "Deployment"
+    ],
+    "recommendedProjects": [
+      "Build a complete web application",
+      "Deploy application to cloud",
+      "Implement authentication system",
+      "Create responsive UI"
+    ],
+    "nextRoles": [
+      "Senior Full Stack Developer",
+      "Tech Lead",
+      "Software Architect"
+    ]
+  },
+  "Data Scientist": {
+    "requiredSkills": [
+      "Python",
+      "Statistics",
+      "Machine Learning",
+      "Data Analysis",
+      "SQL",
+      "Data Visualization"
+    ],
+    "recommendedProjects": [
+      "Analyze a dataset",
+      "Build a predictive model",
+      "Create data visualizations",
+      "Work with real-world data"
+    ],
+    "nextRoles": [
+      "Senior Data Scientist",
+      "Machine Learning Engineer",
+      "Data Engineer"
+    ]
+  },
+  "Product Manager": {
+    "requiredSkills": [
+      "Product Strategy",
+      "User Research",
+      "Agile",
+      "Communication",
+      "Analytics",
+      "Project Management"
+    ],
+    "recommendedProjects": [
+      "Define product roadmap",
+      "Conduct user interviews",
+      "Create product specifications",
+      "Analyze product metrics"
+    ],
+    "nextRoles": [
+      "Senior Product Manager",
+      "Product Lead",
+      "Director of Product"
+    ]
+  }
+}
+
+
+
+

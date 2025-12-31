@@ -1,0 +1,60 @@
+{
+  "name": "job-app-copilot",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=18 <=20"
+  },
+  "scripts": {
+    "predev": "node -e \"const v=process.version.slice(1).split('.').map(Number);const major=v[0];if(major<18||major>20){console.error('❌ ERROR: Node version',process.version,'is not supported. Please use Node 18 or 20.');process.exit(1);}console.log('✓ Node version:',process.version);\" && pnpm -v",
+    "dev": "next dev --hostname 0.0.0.0",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "seed": "tsx scripts/seed.ts",
+    "reminder-worker": "node scripts/reminder-worker.js"
+  },
+  "dependencies": {
+    "@langchain/langgraph": "^0.4.9",
+    "@sendgrid/mail": "^8.1.6",
+    "@tanstack/react-query": "^5.90.14",
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^17.2.2",
+    "ioredis": "^5.8.0",
+    "jsonwebtoken": "^9.0.2",
+    "jspdf": "^3.0.4",
+    "lucide-react": "^0.562.0",
+    "mammoth": "^1.11.0",
+    "mongodb": "^6.20.0",
+    "mongoose": "^8.18.2",
+    "next": "15.5.4",
+    "pdf-lib": "^1.17.1",
+    "pdf-parse": "^1.1.1",
+    "pdfjs-dist": "^4.0.379",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-virtuoso": "^4.18.1",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3",
+    "tesseract.js": "^5.0.4",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/bcryptjs": "^3.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.4",
+    "prettier": "^3.6.2",
+    "tailwindcss": "^4",
+    "tsx": "^4.20.6",
+    "typescript": "^5"
+  }
+}

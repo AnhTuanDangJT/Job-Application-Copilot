@@ -1,0 +1,194 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+html {
+  height: 100%;
+  width: 100%;
+  /* Prevent text zoom on iOS when focusing inputs */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  height: 100%;
+  width: 100%;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  /* Improve touch scrolling on mobile */
+  -webkit-overflow-scrolling: touch;
+  overflow-scrolling: touch;
+}
+
+/* Mobile Menu Styles */
+@media (max-width: 768px) {
+  /* Ensure mobile menu is always on top */
+  .mobile-menu {
+    position: fixed !important;
+    top: 64px !important;
+    left: 0 !important;
+    height: calc(100dvh - 64px) !important;
+    width: 80% !important;
+    max-width: 320px !important;
+    z-index: 999 !important;
+    background: #F8F5F2 !important;
+    pointer-events: auto !important;
+    overflow-y: auto !important;
+  }
+
+  .mobile-menu-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    z-index: 998 !important;
+    pointer-events: auto !important;
+  }
+  
+  /* Ensure navbar and buttons are always clickable */
+  header {
+    position: relative;
+    z-index: 200 !important;
+  }
+  
+  header button,
+  header a {
+    position: relative;
+    z-index: 201 !important;
+    pointer-events: auto !important;
+  }
+}
+
+/* Conversation Message Styles */
+.message-row {
+  display: flex;
+  width: 100%;
+}
+
+.message-row.own-message {
+  justify-content: flex-end;
+}
+
+.message-row.other-message {
+  justify-content: flex-start;
+}
+
+.bubble-wrapper {
+  display: flex;
+  flex-direction: column;
+  max-width: 85%;
+}
+
+@media (min-width: 640px) {
+  .bubble-wrapper {
+    max-width: 70%;
+  }
+}
+
+.bubble {
+  border-radius: 1rem;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  word-wrap: break-word;
+}
+
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .chat-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+.timestamp {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+
+/* Mobile Conversation Layout */
+.conversation-mobile-layout {
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  /* Ensure proper flex context for ChatInterface h-full */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Desktop Conversation Layout - handled by grid in LayoutWrapperClient */
+.sidebar-desktop {
+  width: 16rem;
+}
+
+.chat-area-desktop {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.right-panel-desktop {
+  width: 20rem;
+}
+
+/* Hide scrollbar for left sidebar but allow scrolling */
+.sidebar-no-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.sidebar-no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Mobile touch optimizations */
+@media (max-width: 768px) {
+  /* Ensure buttons and interactive elements are easily tappable */
+  button, a, [role="button"] {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(115, 76, 35, 0.1);
+  }
+  
+  /* Prevent text selection on mobile tap */
+  button, [role="button"] {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  
+  /* Improve scrolling performance */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Better input styling on mobile */
+  input, textarea, select {
+    font-size: 16px !important; /* Prevent iOS zoom */
+  }
+}
