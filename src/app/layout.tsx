@@ -20,7 +20,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Job Application Copilot",
-  description: "Multi-agent system to automate job applications",
+  description: "A mentor-driven platform that helps students and early professionals land jobs faster. Connect with mentors, track applications, and reach your career milestones.",
 };
 
 export const viewport = {
