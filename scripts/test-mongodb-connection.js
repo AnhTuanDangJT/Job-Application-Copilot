@@ -68,8 +68,8 @@ mongoose.connect(uri, {
       console.error('');
       console.error('1. Go to MongoDB Atlas: https://cloud.mongodb.com/');
       console.error('2. Navigate to "Database Access"');
-      console.error('3. Find your user: dganhtuan2k5_db_user');
-      console.error('4. Check the username and password');
+      console.error('3. Verify your database user exists and credentials are correct');
+      console.error('4. Check the username and password in MONGODB_URI');
       console.error('5. If password has special characters, URL encode them:');
       console.error('   - @ becomes %40');
       console.error('   - # becomes %23');

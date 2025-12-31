@@ -4,7 +4,19 @@ const crypto = require('crypto');
 
 const envPath = path.join(process.cwd(), '.env.local');
 
-const mongodbUri = 'mongodb+srv://dganhtuan2k5_db_user:Johnnytext12345@cluster0.8wwd3vo.mongodb.net/job_app_copilot?retryWrites=true&w=majority&appName=Cluster0';
+// Get MongoDB URI from environment variable
+const mongodbUri = process.env.MONGODB_URI;
+
+if (!mongodbUri) {
+  console.error('❌ ERROR: MONGODB_URI environment variable is not set');
+  console.error('');
+  console.error('Please set MONGODB_URI before running this script:');
+  console.error('  export MONGODB_URI="mongodb+srv://username:password@cluster.mongodb.net/database"');
+  console.error('  (Windows: set MONGODB_URI=...)');
+  console.error('');
+  process.exit(1);
+}
+
 const jwtSecret = crypto.randomBytes(32).toString('base64');
 
 const content = `NEXT_PUBLIC_APP_NAME=Job Application Copilot

@@ -5,14 +5,18 @@ const mongoose = require('mongoose');
 
 const envPath = path.join(process.cwd(), '.env.local');
 
-// Your confirmed credentials
-const username = 'dganhtuan2k5_db_user';
-const password = 'Johnnytext12345';
-const cluster = 'cluster0.8wwd3vo.mongodb.net';
-const database = 'job_app_copilot';
+// Get MongoDB URI from environment variable
+const mongodbUri = process.env.MONGODB_URI;
 
-// Build connection string
-const mongodbUri = `mongodb+srv://${username}:${password}@${cluster}/${database}?retryWrites=true&w=majority&appName=Cluster0`;
+if (!mongodbUri) {
+  console.error('❌ ERROR: MONGODB_URI environment variable is not set');
+  console.error('');
+  console.error('Please set MONGODB_URI before running this script:');
+  console.error('  export MONGODB_URI="mongodb+srv://username:password@cluster.mongodb.net/database"');
+  console.error('  (Windows: set MONGODB_URI=...)');
+  console.error('');
+  process.exit(1);
+}
 
 // Generate JWT secret
 const jwtSecret = crypto.randomBytes(32).toString('base64');
@@ -35,7 +39,7 @@ console.log('\n=== Setting Up MongoDB Connection ===\n');
 try {
   fs.writeFileSync(envPath, envContent, 'utf8');
   console.log('✅ Step 1: .env.local file updated');
-  console.log(`   MongoDB URI configured with username: ${username}`);
+  console.log(`   MongoDB URI configured from environment variable`);
   console.log(`   JWT_SECRET generated`);
 } catch (error) {
   console.error('❌ Error updating .env.local:', error.message);
@@ -72,9 +76,8 @@ mongoose.connect(mongodbUri, {
       console.log('Please verify in MongoDB Atlas:');
       console.log('   1. Go to https://cloud.mongodb.com/');
       console.log('   2. Click "Database Access"');
-      console.log('   3. Find user: dganhtuan2k5_db_user');
-      console.log('   4. Verify the password matches: Johnnytext12345');
-      console.log('   5. If different, update it in MongoDB Atlas or .env.local\n');
+      console.log('   3. Verify your database user exists and password is correct');
+      console.log('   4. Update MONGODB_URI in your environment if needed\n');
     } else if (errorMsg.includes('timeout') || errorMsg.includes('serverSelectionTimeoutMS')) {
       console.log('🔍 Issue: Connection Timeout');
       console.log('\nYour IP address is likely not whitelisted.');

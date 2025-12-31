@@ -10,14 +10,24 @@ const crypto = require('crypto');
 
 const envPath = path.join(process.cwd(), '.env.local');
 
-// Your MongoDB Atlas credentials
-const username = 'dganhtuan2k5_db_user';
-const password = 'Johnnytext12345';
-const cluster = 'cluster0.8wwd3vo.mongodb.net';
-const database = 'job_app_copilot';
+// Get MongoDB URI from environment variable
+const mongodbUri = process.env.MONGODB_URI;
 
-// Build connection string - password doesn't need encoding (no special chars)
-const mongodbUri = `mongodb+srv://${username}:${password}@${cluster}/${database}?retryWrites=true&w=majority&appName=Cluster0`;
+if (!mongodbUri) {
+  console.error('❌ ERROR: MONGODB_URI environment variable is not set');
+  console.error('');
+  console.error('Please set MONGODB_URI before running this script:');
+  console.error('  export MONGODB_URI="mongodb+srv://username:password@cluster.mongodb.net/database"');
+  console.error('  (Windows: set MONGODB_URI=...)');
+  console.error('');
+  process.exit(1);
+}
+
+// Parse URI for display
+const uriMatch = mongodbUri.match(/mongodb\+srv?:\/\/([^:]+):([^@]+)@([^\/]+)\/([^?]+)/);
+const username = uriMatch ? uriMatch[1] : 'unknown';
+const cluster = uriMatch ? uriMatch[3] : 'unknown';
+const database = uriMatch ? uriMatch[4] : 'unknown';
 
 // Generate secure JWT secret
 const jwtSecret = crypto.randomBytes(32).toString('base64');

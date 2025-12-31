@@ -4,13 +4,23 @@ const mongoose = require('mongoose');
 
 const envPath = path.join(process.cwd(), '.env.local');
 
-// Your credentials
-const username = 'dganhtuan2k5_db_user';
-const password = 'Johnnytext12345'; // Make sure this matches MongoDB Atlas
-const cluster = 'cluster0.8wwd3vo.mongodb.net';
-const database = 'job_app_copilot';
+// Get MongoDB URI from environment variable
+const mongodbUri = process.env.MONGODB_URI;
 
-const mongodbUri = `mongodb+srv://${username}:${password}@${cluster}/${database}?retryWrites=true&w=majority&appName=Cluster0`;
+if (!mongodbUri) {
+  console.error('❌ ERROR: MONGODB_URI environment variable is not set');
+  console.error('');
+  console.error('Please set MONGODB_URI before running this script:');
+  console.error('  export MONGODB_URI="mongodb+srv://username:password@cluster.mongodb.net/database"');
+  console.error('  (Windows: set MONGODB_URI=...)');
+  console.error('');
+  process.exit(1);
+}
+
+// Parse URI for display
+const uriMatch = mongodbUri.match(/mongodb\+srv?:\/\/([^:]+):([^@]+)@([^\/]+)\/([^?]+)/);
+const username = uriMatch ? uriMatch[1] : 'unknown';
+const database = uriMatch ? uriMatch[4] : 'unknown';
 
 console.log('\n=== Updating .env.local and Testing Connection ===\n');
 
@@ -88,12 +98,9 @@ mongoose.connect(mongodbUri, {
       console.error('The password is incorrect. Please:');
       console.error('');
       console.error('1. Go to MongoDB Atlas → Database Access');
-      console.error('2. Click "EDIT" on user: dganhtuan2k5_db_user');
-      console.error('3. Click "Edit Password"');
-      console.error('4. Set password to: Johnnytext12345');
-      console.error('5. Click "Update User"');
-      console.error('6. Wait 1-2 minutes');
-      console.error('7. Run this script again: node scripts/update-password-and-test.js');
+      console.error('2. Verify your database user exists');
+      console.error('3. Update MONGODB_URI with correct credentials');
+      console.error('4. Run this script again: node scripts/update-password-and-test.js');
       console.error('');
     } else if (errorMsg.includes('timeout')) {
       console.error('🔍 Connection timeout (IP should be whitelisted already)');

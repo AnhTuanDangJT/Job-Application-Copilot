@@ -1,15 +1,27 @@
 const mongoose = require('mongoose');
 
-const username = 'dganhtuan2k5_db_user';
-const password = 'Johnnytext12345';
-const cluster = 'cluster0.8wwd3vo.mongodb.net';
-const database = 'job_app_copilot';
+// Get MongoDB URI from environment variable
+const uri = process.env.MONGODB_URI;
 
-const uri = `mongodb+srv://${username}:${password}@${cluster}/${database}?retryWrites=true&w=majority&appName=Cluster0`;
+if (!uri) {
+  console.error('❌ ERROR: MONGODB_URI environment variable is not set');
+  console.error('');
+  console.error('Please set MONGODB_URI before running this script:');
+  console.error('  export MONGODB_URI="mongodb+srv://username:password@cluster.mongodb.net/database"');
+  console.error('  (Windows: set MONGODB_URI=...)');
+  console.error('');
+  process.exit(1);
+}
+
+// Parse URI for display
+const uriMatch = uri.match(/mongodb\+srv?:\/\/([^:]+):([^@]+)@([^\/]+)\/([^?]+)/);
+const username = uriMatch ? uriMatch[1] : 'unknown';
+const cluster = uriMatch ? uriMatch[3] : 'unknown';
+const database = uriMatch ? uriMatch[4] : 'unknown';
 
 console.log('\n=== Testing MongoDB Atlas Connection ===\n');
 console.log('Username:', username);
-console.log('Password:', '***' + password.slice(-2));
+console.log('Password:', '***');
 console.log('Cluster:', cluster);
 console.log('Database:', database);
 console.log('\nConnecting...\n');
@@ -51,11 +63,8 @@ mongoose.connect(uri, {
       console.error('🔧 HOW TO FIX:');
       console.error('  1. Go to https://cloud.mongodb.com/');
       console.error('  2. Click "Database Access"');
-      console.error('  3. Find user: dganhtuan2k5_db_user');
-      console.error('  4. Verify the password is: Johnnytext12345');
-      console.error('  5. If wrong, either:');
-      console.error('     - Reset password in MongoDB Atlas');
-      console.error('     - Or update .env.local with correct password');
+      console.error('  3. Verify your database user exists and password is correct');
+      console.error('  4. Update MONGODB_URI with correct credentials');
       console.error('');
     } else if (errorMsg.includes('timeout') || errorMsg.includes('serverSelectionTimeoutMS')) {
       console.error('🔍 DIAGNOSIS: Connection Timeout');

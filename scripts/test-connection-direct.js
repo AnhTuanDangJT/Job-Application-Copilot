@@ -1,13 +1,23 @@
 const mongoose = require('mongoose');
 
-// Your credentials
-const username = 'dganhtuan2k5_db_user';
-const password = 'Johnnytext12345';
-const cluster = 'cluster0.8wwd3vo.mongodb.net';
-const database = 'job_app_copilot';
+// Get MongoDB URI from environment variable
+const uri = process.env.MONGODB_URI;
 
-// Connection string
-const uri = `mongodb+srv://${username}:${password}@${cluster}/${database}?retryWrites=true&w=majority&appName=Cluster0`;
+if (!uri) {
+  console.error('❌ ERROR: MONGODB_URI environment variable is not set');
+  console.error('');
+  console.error('Please set MONGODB_URI before running this script:');
+  console.error('  export MONGODB_URI="mongodb+srv://username:password@cluster.mongodb.net/database"');
+  console.error('  (Windows: set MONGODB_URI=...)');
+  console.error('');
+  process.exit(1);
+}
+
+// Parse URI for display
+const uriMatch = uri.match(/mongodb\+srv?:\/\/([^:]+):([^@]+)@([^\/]+)\/([^?]+)/);
+const username = uriMatch ? uriMatch[1] : 'unknown';
+const cluster = uriMatch ? uriMatch[3] : 'unknown';
+const database = uriMatch ? uriMatch[4] : 'unknown';
 
 console.log('\n=== Direct MongoDB Connection Test ===\n');
 console.log('Testing with:');
@@ -66,15 +76,15 @@ mongoose.connect(uri, {
       console.error('Please verify in MongoDB Atlas:');
       console.error('   1. Go to https://cloud.mongodb.com/');
       console.error('   2. Click "Database Access"');
-      console.error('   3. Find user: dganhtuan2k5_db_user');
+      console.error('   3. Find your database user');
       console.error('   4. Check:');
       console.error('      - Does the user exist?');
-      console.error('      - Is the password exactly: Johnnytext12345');
+      console.error('      - Is the password correct in MONGODB_URI?');
       console.error('      - Is the user "Active" (not disabled)?');
       console.error('');
       console.error('If the user doesn\'t exist or password is wrong:');
       console.error('   1. Create/reset the user in MongoDB Atlas');
-      console.error('   2. Set password to: Johnnytext12345');
+      console.error('   2. Update MONGODB_URI with correct credentials');
       console.error('   3. Grant "Read and write to any database" permissions');
       console.error('   4. Run this test again\n');
     } else if (errorMsg.includes('ENOTFOUND') || errorMsg.includes('getaddrinfo')) {
