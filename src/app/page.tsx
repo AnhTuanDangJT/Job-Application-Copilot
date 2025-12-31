@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { UserGroup, ChartBar, Flag, MessageSquare, FileText, Target, TrendingUp } from "lucide-react";
+import { Users, ChartBar, Flag, MessageSquare, FileText, Target, TrendingUp } from "lucide-react";
 
 export default function Home() {
   return (
@@ -46,7 +46,7 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 max-w-5xl mx-auto">
           <div className="bg-white rounded-xl p-6 sm:p-8 shadow-sm border border-[#E5D5C3] hover:shadow-lg transition-all duration-200">
             <div className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-[#EADBC8] mb-4 sm:mb-6">
-              <UserGroup className="w-6 h-6 sm:w-7 sm:h-7 text-[#7A4A2E]" />
+              <Users className="w-6 h-6 sm:w-7 sm:h-7 text-[#7A4A2E]" />
             </div>
             <h3 className="text-xl sm:text-2xl font-semibold text-[#1F2937] mb-3 sm:mb-4">
               Connect with a Mentor
