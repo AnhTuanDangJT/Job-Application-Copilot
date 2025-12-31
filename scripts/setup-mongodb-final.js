@@ -12,8 +12,8 @@ if (!mongodbUri) {
   console.error('❌ ERROR: MONGODB_URI environment variable is not set');
   console.error('');
   console.error('Please set MONGODB_URI before running this script:');
-  console.error('  export MONGODB_URI="mongodb+srv://username:password@cluster.mongodb.net/database"');
-  console.error('  (Windows: set MONGODB_URI=...)');
+  console.error('  export MONGODB_URI="<YOUR_MONGODB_URI>"');
+  console.error('  (Windows: set MONGODB_URI=<YOUR_MONGODB_URI>)');
   console.error('');
   process.exit(1);
 }

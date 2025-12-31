@@ -6,7 +6,7 @@ if "%MONGODB_URI%"=="" (
     echo ERROR: MONGODB_URI environment variable is not set
     echo.
     echo Please set MONGODB_URI before running this script:
-    echo   set MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/database
+    echo   set MONGODB_URI=<YOUR_MONGODB_URI>
     echo.
     pause
     exit /b 1

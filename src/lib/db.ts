@@ -69,7 +69,7 @@ export async function connectToDatabase(): Promise<Mongoose> {
       "- Replace <user> or YOUR_USERNAME with your MongoDB username\n" +
       "- Replace <pass> or YOUR_PASSWORD with your MongoDB password\n" +
       "- Replace <cluster-url> or YOUR_CLUSTER with your actual MongoDB cluster URL\n" +
-      "Example: mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/database?retryWrites=true&w=majority"
+      "Example format: <YOUR_MONGODB_URI> (get from MongoDB Atlas)"
     );
   }
   
@@ -149,7 +149,7 @@ export async function connectToDatabase(): Promise<Mongoose> {
           console.error(`[DB] Invalid hostname after ${duration}ms`);
           throw new Error(
             "MongoDB connection string has invalid hostname or contains placeholder values.\n" +
-            "The connection string should look like: mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/database\n" +
+            "The connection string format should match your MongoDB Atlas connection string.\n" +
             "Please check your MONGODB_URI in .env.local and ensure all placeholders are replaced with actual values."
           );
         }

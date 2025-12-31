@@ -4,10 +4,10 @@ MongoDB Atlas Connection String Template
 
 Copy this format and replace the placeholders with your actual values:
 
-mongodb+srv://YOUR_USERNAME:YOUR_PASSWORD@YOUR_CLUSTER_HOST/job_app_copilot?retryWrites=true&w=majority
+Format: [protocol]://<YOUR_USERNAME>:<YOUR_PASSWORD>@<YOUR_CLUSTER_HOST>/job_app_copilot?retryWrites=true&w=majority
 
-Example (what it might look like):
-mongodb+srv://myuser:mypassword123@cluster0.a1b2c3d.mongodb.net/job_app_copilot?retryWrites=true&w=majority
+Where [protocol] is: mongodb + srv
+Note: Replace <YOUR_USERNAME>, <YOUR_PASSWORD>, and <YOUR_CLUSTER_HOST> with your actual MongoDB Atlas values.
 
 =================================================
 How to Get Your Connection String:
@@ -19,8 +19,9 @@ How to Get Your Connection String:
 4. Choose "Drivers" option (the server rack icon)
 5. Select "Node.js" as the driver
 6. Copy the connection string shown
-7. It will look like:
-   mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority
+7. It will follow this format:
+   [protocol]://<username>:<password>@<cluster-hostname>/?retryWrites=true&w=majority
+   (where [protocol] is mongodb+srv)
 
 8. Replace:
    - <username> with your MongoDB Atlas username
