@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { UserGroup, ChartBar, Flag, MessageSquare, FileText, Target, TrendingUp } from "lucide-react";
 
