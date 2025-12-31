@@ -10,7 +10,7 @@ importers:
     dependencies:
       '@langchain/langgraph':
         specifier: ^0.4.9
-        version: 0.4.9(@langchain/core@0.3.80)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(zod-to-json-schema@3.25.1(zod@4.3.3))
+        version: 0.4.9(@langchain/core@0.3.80)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(zod-to-json-schema@3.25.1(zod@4.3.4))
       '@sendgrid/mail':
         specifier: ^8.1.6
         version: 8.1.6
@@ -76,7 +76,7 @@ importers:
         version: 5.1.1
       zod:
         specifier: ^4.1.13
-        version: 4.3.3
+        version: 4.3.4
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3
@@ -2781,8 +2781,8 @@ packages:
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
-  zod@4.3.3:
-    resolution: {integrity: sha512-bQ7Rxwfn04DCrTjjRfD9SavY2vWdmf3REjs/mkc1LdwI1KkcHClBRJmnvmA/6epGeqlHePtIRF1J4SrMMlW7IA==}
+  zod@4.3.4:
+    resolution: {integrity: sha512-Zw/uYiiyF6pUT1qmKbZziChgNPRu+ZRneAsMUDU6IwmXdWt5JwcUfy2bvLOCUtz5UniaN/Zx5aFttZYbYc7O/A==}
 
 snapshots:
 
@@ -3097,7 +3097,7 @@ snapshots:
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
-  '@langchain/langgraph@0.4.9(@langchain/core@0.3.80)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(zod-to-json-schema@3.25.1(zod@4.3.3))':
+  '@langchain/langgraph@0.4.9(@langchain/core@0.3.80)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(zod-to-json-schema@3.25.1(zod@4.3.4))':
     dependencies:
       '@langchain/core': 0.3.80
       '@langchain/langgraph-checkpoint': 0.1.1(@langchain/core@0.3.80)
@@ -3105,7 +3105,7 @@ snapshots:
       uuid: 10.0.0
       zod: 3.25.76
     optionalDependencies:
-      zod-to-json-schema: 3.25.1(zod@4.3.3)
+      zod-to-json-schema: 3.25.1(zod@4.3.4)
     transitivePeerDependencies:
       - react
       - react-dom
@@ -5589,11 +5589,11 @@ snapshots:
     dependencies:
       zod: 3.25.76
 
-  zod-to-json-schema@3.25.1(zod@4.3.3):
+  zod-to-json-schema@3.25.1(zod@4.3.4):
     dependencies:
-      zod: 4.3.3
+      zod: 4.3.4
     optional: true
 
   zod@3.25.76: {}
 
-  zod@4.3.3: {}
+  zod@4.3.4: {}

@@ -1,0 +1,67 @@
+=================================================
+MongoDB Atlas Connection String Template
+=================================================
+
+Copy this format and replace the placeholders with your actual values:
+
+mongodb+srv://YOUR_USERNAME:YOUR_PASSWORD@YOUR_CLUSTER_HOST/job_app_copilot?retryWrites=true&w=majority
+
+Example (what it might look like):
+mongodb+srv://myuser:mypassword123@cluster0.a1b2c3d.mongodb.net/job_app_copilot?retryWrites=true&w=majority
+
+=================================================
+How to Get Your Connection String:
+=================================================
+
+1. Go to: https://cloud.mongodb.com/
+2. Log in to your MongoDB Atlas account
+3. Click "Connect" button on your cluster
+4. Choose "Drivers" option (the server rack icon)
+5. Select "Node.js" as the driver
+6. Copy the connection string shown
+7. It will look like:
+   mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority
+
+8. Replace:
+   - <username> with your MongoDB Atlas username
+   - <password> with your MongoDB Atlas password
+   - Add /job_app_copilot before the ? (this is your database name)
+
+=================================================
+Steps to Update .env.local:
+=================================================
+
+1. Open .env.local file in your project root
+2. Find the line: MONGODB_URI=...
+3. Replace it with your MongoDB Atlas connection string
+4. Save the file
+5. Restart your dev server: pnpm dev
+
+=================================================
+Important Security Steps:
+=================================================
+
+✅ Make sure your IP address is whitelisted in MongoDB Atlas:
+   - Go to Network Access in MongoDB Atlas
+   - Click "Add IP Address"
+   - Add your current IP or use 0.0.0.0/0 for development (NOT recommended for production)
+
+✅ Make sure you have a database user created:
+   - Go to Database Access in MongoDB Atlas
+   - Create a user with read/write permissions
+
+=================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+

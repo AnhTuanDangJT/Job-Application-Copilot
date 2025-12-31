@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { redirect } from "next/navigation";
 import { getServerAuth } from "@/lib/serverAuth";
 import { isAdminEmail } from "@/lib/adminConfig";

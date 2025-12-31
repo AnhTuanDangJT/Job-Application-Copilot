@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  reactStrictMode: true,
   serverExternalPackages: ["pdf-parse"],
   webpack: (config) => {
     return config; // do nothing but force Next.js to use Webpack

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=18 <=20"
+    "node": ">=18"
   },
   "scripts": {
     "predev": "node -e \"const v=process.version.slice(1).split('.').map(Number);const major=v[0];if(major<18||major>20){console.error('❌ ERROR: Node version',process.version,'is not supported. Please use Node 18 or 20.');process.exit(1);}console.log('✓ Node version:',process.version);\" && pnpm -v",

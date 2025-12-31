@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { redirect, notFound } from "next/navigation";
 import { getServerAuth } from "@/lib/serverAuth";
 import { connectToDatabase } from "@/lib/db";
