@@ -117,7 +117,7 @@ export default function Home() {
             className="mt-6 sm:mt-8 text-base sm:text-lg md:text-xl text-[#4a2f1c]/75 max-w-3xl mx-auto leading-relaxed"
           >
             Connect with experienced mentors who guide you through your job search journey. 
-            Track applications, improve resumes, get feedback, and reach your career milestones—all in one place.
+            Track applications, improve resumes, get feedback, and reach your career milestones, all in one place.
           </motion.p>
           
           <motion.div
