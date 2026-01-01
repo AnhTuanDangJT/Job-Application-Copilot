@@ -1,0 +1,25 @@
+# Railway should NEVER deploy Next.js frontend files
+# This file documents exclusions, but Railway should not be connected to this root directory
+
+# Exclude all Next.js frontend files
+package.json
+package-lock.json
+pnpm-lock.yaml
+next.config.ts
+next-env.d.ts
+src/app/**
+src/components/**
+src/contexts/**
+src/hooks/**
+src/providers/**
+src/types/**
+public/**
+tsconfig.json
+postcss.config.mjs
+eslint.config.mjs
+vercel.json
+
+# Only backend API routes should be deployed (if backend is separate)
+# If backend is in a separate directory, Railway root should point to that directory
+
+

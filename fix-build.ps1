@@ -19,3 +19,4 @@ Write-Host "2. The build will regenerate automatically" -ForegroundColor White
 Write-Host "`nPress any key to exit..."
 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 
+

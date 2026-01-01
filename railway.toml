@@ -1,0 +1,21 @@
+# Railway Configuration
+# ⚠️ WARNING: This repository root contains Next.js frontend
+# Railway MUST NOT deploy from this root directory
+# Backend must be in a separate directory or repository
+
+[build]
+builder = "NIXPACKS"
+buildCommand = "echo 'ERROR: Railway should NOT build Next.js frontend. Backend must be deployed from a separate backend directory.' && exit 1"
+
+[deploy]
+startCommand = "echo 'ERROR: Railway should NOT run Next.js. Frontend must be deployed on Vercel only. Backend must be deployed from a separate backend directory.' && exit 1"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+# Environment variables (set these in Railway dashboard, not here)
+# PORT - automatically provided by Railway
+# MONGODB_URI - set in Railway dashboard
+# JWT_SECRET - set in Railway dashboard
+# Other backend environment variables - set in Railway dashboard
+
+

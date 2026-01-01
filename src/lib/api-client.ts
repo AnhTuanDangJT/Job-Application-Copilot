@@ -4,12 +4,9 @@
 // Get base API URL from environment variable (points to Railway backend)
 // Falls back to relative path if not set (for local development with Next.js API routes)
 const getBaseUrl = (): string => {
-  if (typeof window !== "undefined") {
-    // Client-side: use NEXT_PUBLIC_API_URL or fall back to relative path
-    return process.env.NEXT_PUBLIC_API_URL || "";
-  }
-  // Server-side: use NEXT_PUBLIC_API_URL or fall back to relative path
-  return process.env.NEXT_PUBLIC_API_URL || "";
+  // Prefer NEXT_PUBLIC_BACKEND_URL (Railway backend), fallback to NEXT_PUBLIC_API_URL, then relative
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || "";
+  return backendUrl;
 };
 
 // Helper function to build API URLs - use this for all API calls
