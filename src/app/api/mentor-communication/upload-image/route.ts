@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/apiAuth";
 import { rateLimiters } from "@/lib/rateLimit";
 import { errors } from "@/lib/errors";
-import { saveUserFile } from "@/lib/fileStorage";
+// Removed saveUserFile import - using Base64 for Vercel serverless compatibility
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -59,28 +59,29 @@ export async function POST(req: NextRequest) {
       return errors.validation(`Invalid file type. Only image files (JPEG, PNG, GIF, WebP) are allowed.`);
     }
 
-    // Convert to buffer
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    
-    if (!buffer || buffer.length === 0) {
-      return errors.validation("Invalid image buffer");
+    // Convert to Base64 data URL for Vercel serverless compatibility
+    // TODO: Migrate to cloud storage (S3/Cloudinary) for production scalability
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      
+      if (!buffer || buffer.length === 0) {
+        return errors.validation("Invalid image buffer");
+      }
+      
+      // Convert to Base64 data URL
+      const base64 = buffer.toString("base64");
+      const imageUrl = `data:${file.type};base64,${base64}`;
+
+      return NextResponse.json({
+        success: true,
+        imageUrl,
+        fileName: file.name,
+      });
+    } catch (uploadError) {
+      console.error("[Upload Image] Image processing error:", uploadError);
+      return errors.internal("Failed to process image. Please try again.");
     }
-
-    // Save image file
-    const storagePath = await saveUserFile(auth.sub, "images", file.name, buffer);
-    
-    // Return the URL path that can be used to access the image
-    // The path should be relative to the API route: /api/mentor-communication/images/
-    // Remove the "uploads/" prefix and use the remaining path
-    const pathAfterUploads = storagePath.replace(/^uploads\//, "");
-    const imageUrl = `/api/mentor-communication/images/${pathAfterUploads}`;
-
-    return NextResponse.json({
-      success: true,
-      imageUrl,
-      fileName: file.name,
-    });
   } catch (error) {
     console.error("Image upload error:", error instanceof Error ? error.message : "Unknown error");
     return errors.internal("An error occurred while uploading image");

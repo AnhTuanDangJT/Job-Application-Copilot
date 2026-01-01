@@ -35,6 +35,15 @@ export async function GET(
     }
 
     try {
+      // Check if file exists before reading (defensive check for Vercel serverless)
+      // Note: This route is for backward compatibility with old disk-stored images
+      // New images are stored as Base64 data URLs and don't use this route
+      try {
+        await fs.access(fullPath);
+      } catch (accessError) {
+        return errors.notFound("Image not found");
+      }
+
       const imageBuffer = await fs.readFile(fullPath);
       const ext = path.extname(fullPath).toLowerCase();
       
@@ -56,6 +65,8 @@ export async function GET(
         },
       });
     } catch (fileError) {
+      // Defensive: Return 404 instead of crashing
+      console.warn("[Image Serve] File read error:", fileError instanceof Error ? fileError.message : "Unknown error");
       return errors.notFound("Image not found");
     }
   } catch (error) {

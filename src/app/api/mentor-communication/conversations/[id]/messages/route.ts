@@ -12,7 +12,7 @@ import { Types } from "mongoose";
 import { z } from "zod";
 import { isUserAway, createNotification } from "@/lib/notifications";
 import { broadcastToConversation } from "@/lib/websocket/broadcast";
-import { saveUserFile } from "@/lib/fileStorage";
+// Removed saveUserFile import - using Base64 for Vercel serverless compatibility
 
 const messagesQuerySchema = z.object({
   page: z.string().optional().transform((val) => {
@@ -181,16 +181,24 @@ export async function POST(
           return errors.validation(`Image size (${fileSizeMB}MB) exceeds 10MB limit`);
         }
 
-        // Convert to buffer
-        const arrayBuffer = await imageFile.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
-
-        // Save image file
-        const storagePath = await saveUserFile(auth.sub, "images", imageFile.name, buffer);
-        
-        // Generate image URL
-        const pathAfterUploads = storagePath.replace(/^uploads\//, "");
-        imageUrl = `/api/mentor-communication/images/${pathAfterUploads}`;
+        // Convert to Base64 data URL for Vercel serverless compatibility
+        // TODO: Migrate to cloud storage (S3/Cloudinary) for production scalability
+        try {
+          const arrayBuffer = await imageFile.arrayBuffer();
+          const buffer = Buffer.from(arrayBuffer);
+          
+          // Validate buffer is not empty
+          if (!buffer || buffer.length === 0) {
+            return errors.validation("Invalid image data");
+          }
+          
+          // Convert to Base64 data URL
+          const base64 = buffer.toString("base64");
+          imageUrl = `data:${imageFile.type};base64,${base64}`;
+        } catch (uploadError) {
+          console.error("[Send Message] Image upload error:", uploadError);
+          return errors.internal("Failed to process image. Please try again.");
+        }
       }
 
       // Validate that at least one of content or imageUrl is provided
