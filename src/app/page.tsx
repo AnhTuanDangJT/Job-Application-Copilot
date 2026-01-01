@@ -269,6 +269,15 @@ export default function Home() {
           </div>
         </ScrollAnimation>
       </section>
+
+      {/* Footer with Copyright */}
+      <footer className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-10 border-t border-[#c8a165]/20">
+        <div className="text-center">
+          <p className="text-sm sm:text-base text-[#4a2f1c]/60">
+            © {new Date().getFullYear()} Job Application Copilot. All rights reserved.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
