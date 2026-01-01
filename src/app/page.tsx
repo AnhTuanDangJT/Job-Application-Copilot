@@ -86,9 +86,42 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#f5efe9]">
+    <div className="min-h-screen bg-[#f5efe9] relative overflow-hidden">
+      {/* Enhanced Background with Gradient and Decorative Elements */}
+      <div className="fixed inset-0 -z-10">
+        {/* Subtle gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#f5efe9] via-[#faf7f2] to-[#f0eae3]" />
+        
+        {/* Decorative circles/orbs - subtle blur effect for depth */}
+        <div className="absolute top-20 left-10 w-72 h-72 bg-[#c8a165]/5 rounded-full blur-3xl" />
+        <div className="absolute top-1/3 right-20 w-96 h-96 bg-[#4a2f1c]/3 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-[#c8a165]/4 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-[#c8a165]/3 rounded-full blur-3xl" />
+        
+        {/* Subtle dot pattern overlay */}
+        <div 
+          className="absolute inset-0 opacity-[0.02]"
+          style={{
+            backgroundImage: `
+              radial-gradient(circle at 2px 2px, #4a2f1c 1px, transparent 0),
+              radial-gradient(circle at 2px 2px, #4a2f1c 1px, transparent 0)
+            `,
+            backgroundSize: '40px 40px',
+            backgroundPosition: '0 0, 20px 20px'
+          }}
+        />
+        
+        {/* Subtle texture lines */}
+        <div 
+          className="absolute inset-0 opacity-[0.01]"
+          style={{
+            backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, #4a2f1c 10px, #4a2f1c 11px)'
+          }}
+        />
+      </div>
+
       {/* Hero Section */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-16 sm:pt-20 md:pt-28 pb-20 sm:pb-24 md:pb-32">
+      <section className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-16 sm:pt-20 md:pt-28 pb-20 sm:pb-24 md:pb-32">
         <div className="text-center max-w-5xl mx-auto">
           <motion.div
             initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 30 }}
@@ -143,7 +176,7 @@ export default function Home() {
       </section>
 
       {/* How It Works Section */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 sm:py-20 md:py-28">
+      <section className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 sm:py-20 md:py-28">
         <ScrollAnimation className="text-center mb-12 sm:mb-16 md:mb-20">
           <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-[#4a2f1c]">
             How It Works
@@ -189,7 +222,7 @@ export default function Home() {
       </section>
 
       {/* Why Job Application Copilot Section */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 sm:py-20 md:py-28">
+      <section className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 sm:py-20 md:py-28">
         <ScrollAnimation className="text-center mb-12 sm:mb-16 md:mb-20">
           <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-[#4a2f1c]">
             Why Job Application Copilot
@@ -240,7 +273,7 @@ export default function Home() {
       </section>
 
       {/* Final CTA Section */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 sm:py-24 md:py-32">
+      <section className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 sm:py-24 md:py-32">
         <ScrollAnimation>
           <div className="relative rounded-3xl bg-gradient-to-br from-[#4a2f1c] via-[#5a3f2c] to-[#4a2f1c] p-12 sm:p-16 md:p-20 shadow-2xl overflow-hidden">
             {/* Subtle pattern overlay */}
