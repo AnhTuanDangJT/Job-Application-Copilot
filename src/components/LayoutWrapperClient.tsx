@@ -55,13 +55,13 @@ function LayoutWrapperClientInner({ children }: { children: React.ReactNode }) {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen md:h-screen flex-col bg-[#F8F5F2] md:overflow-hidden">
+      <div className={`flex min-h-screen flex-col bg-[#F8F5F2] ${shouldUseMentorLayout ? 'md:h-screen md:overflow-hidden' : ''}`}>
         {/* Top header */}
         <div className={shouldUseMentorLayout ? "hidden lg:block flex-shrink-0" : "flex-shrink-0"}>
           <Navbar onMenuClick={() => setIsMobileMenuOpen(true)} />
         </div>
-        {/* IMPORTANT: constrain height + allow inner scrolling */}
-        <div className="flex-1 min-h-0 md:overflow-hidden">
+        {/* IMPORTANT: constrain height + allow inner scrolling for mentor layout, natural scrolling for regular dashboard */}
+        <div className={`flex-1 min-h-0 ${shouldUseMentorLayout ? 'md:overflow-hidden' : ''}`}>
           {shouldUseMentorLayout ? (
             <>
               {/* Mobile: Simplified layout */}
@@ -113,13 +113,13 @@ function LayoutWrapperClientInner({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-screen md:h-screen flex-col bg-[#F8F5F2] md:overflow-hidden">
+    <div className={`flex min-h-screen flex-col bg-[#F8F5F2] ${shouldUseMentorLayout ? 'md:h-screen md:overflow-hidden' : ''}`}>
       {/* Top header */}
       <div className={shouldUseMentorLayout ? "hidden lg:block flex-shrink-0" : "flex-shrink-0"}>
         <Navbar onMenuClick={() => setIsMobileMenuOpen(true)} />
       </div>
-      {/* IMPORTANT: constrain height + allow inner scrolling */}
-      <div className="flex-1 min-h-0 md:overflow-hidden">
+      {/* IMPORTANT: constrain height + allow inner scrolling for mentor layout, natural scrolling for regular dashboard */}
+      <div className={`flex-1 min-h-0 ${shouldUseMentorLayout ? 'md:overflow-hidden' : ''}`}>
         {shouldUseMentorLayout ? (
           <>
             {/* Mobile: Simplified layout without header and sidebars */}
