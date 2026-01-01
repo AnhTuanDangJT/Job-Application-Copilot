@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { getApiUrl } from "@/lib/api-client";
 
 export default function VerifyEmailPage() {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
@@ -122,7 +123,7 @@ export default function VerifyEmailPage() {
     }
 
     try {
-      const response = await fetch("/api/auth/verify-email", {
+      const response = await fetch(getApiUrl("/auth/verify-email"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, code: codeString }),
@@ -159,7 +160,7 @@ export default function VerifyEmailPage() {
     setError("");
 
     try {
-      const response = await fetch("/api/auth/resend-verification", {
+      const response = await fetch(getApiUrl("/auth/resend-verification"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),

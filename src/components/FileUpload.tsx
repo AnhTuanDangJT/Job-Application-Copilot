@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { getApiUrl } from "@/lib/api-client";
 
 interface FileUploadProps {
   type: "cv" | "coverletter";
@@ -57,9 +58,9 @@ export default function FileUpload({ type, onSuccess, onUploadComplete }: FileUp
       const formData = new FormData();
       formData.append("file", file);
 
-      const endpoint = type === "cv" ? "/api/upload/cv" : "/api/upload/coverletter";
+      const endpoint = type === "cv" ? "/upload/cv" : "/upload/coverletter";
       
-      const response = await fetch(endpoint, {
+      const response = await fetch(getApiUrl(endpoint), {
         method: "POST",
         body: formData,
         credentials: "include",

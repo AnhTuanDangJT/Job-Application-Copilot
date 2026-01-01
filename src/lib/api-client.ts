@@ -1,6 +1,25 @@
 // Simple API client for making authenticated requests
 // Cookies are automatically sent with requests, no need to manually add them
 
+// Get base API URL from environment variable (points to Railway backend)
+// Falls back to relative path if not set (for local development with Next.js API routes)
+const getBaseUrl = (): string => {
+  if (typeof window !== "undefined") {
+    // Client-side: use NEXT_PUBLIC_API_URL or fall back to relative path
+    return process.env.NEXT_PUBLIC_API_URL || "";
+  }
+  // Server-side: use NEXT_PUBLIC_API_URL or fall back to relative path
+  return process.env.NEXT_PUBLIC_API_URL || "";
+};
+
+// Helper function to build API URLs - use this for all API calls
+export const getApiUrl = (path: string): string => {
+  const baseUrl = getBaseUrl();
+  // Remove leading slash if present to avoid double slashes
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  return baseUrl ? `${baseUrl}/api${cleanPath}` : `/api${cleanPath}`;
+};
+
 // Routes that must always fetch fresh data (user-specific, dynamic)
 const FRESH_ROUTES = [
   "/auth/me",
@@ -19,7 +38,8 @@ function needsFreshData(path: string): boolean {
 
 export const apiClient = {
   async get<T>(path: string): Promise<T> {
-    const response = await fetch(`/api${path}`, {
+    const url = getApiUrl(path);
+    const response = await fetch(url, {
       method: "GET",
       credentials: "include", // Include cookies
       cache: needsFreshData(path) ? "no-store" : "default",
@@ -47,7 +67,8 @@ export const apiClient = {
       options.body = JSON.stringify(data);
     }
     
-    const response = await fetch(`/api${path}`, options);
+    const url = getApiUrl(path);
+    const response = await fetch(url, options);
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ error: "Request failed" }));
@@ -58,7 +79,8 @@ export const apiClient = {
   },
 
   async patch<T>(path: string, data: unknown): Promise<T> {
-    const response = await fetch(`/api${path}`, {
+    const url = getApiUrl(path);
+    const response = await fetch(url, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -77,7 +99,8 @@ export const apiClient = {
   },
 
   async delete<T>(path: string): Promise<T> {
-    const response = await fetch(`/api${path}`, {
+    const url = getApiUrl(path);
+    const response = await fetch(url, {
       method: "DELETE",
       credentials: "include",
       cache: "no-store",
