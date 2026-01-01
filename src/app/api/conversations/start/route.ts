@@ -56,12 +56,13 @@ export async function POST(req: NextRequest) {
     const genericError = errors.validation("Unable to start conversation");
 
     // Validate target user exists
-    if (!targetUser) {
+    if (!targetUser || Array.isArray(targetUser)) {
       return genericError;
     }
 
     // Prevent self-conversation
-    if (targetUser._id.equals(userId)) {
+    const targetUserId = new Types.ObjectId(String(targetUser._id));
+    if (targetUserId.equals(userId)) {
       return genericError;
     }
 
@@ -72,35 +73,38 @@ export async function POST(req: NextRequest) {
       if (targetUser.role !== "mentor" && targetUser.role !== "admin") {
         return genericError;
       }
-      mentorIdObj = new Types.ObjectId(targetUser._id);
+      mentorIdObj = targetUserId;
       menteeIdObj = userId;
     } else if (auth.role === "mentor") {
       // Current user is mentor (or admin normalized to mentor) - target must be mentee
       if (targetUser.role !== "mentee") {
         return genericError;
       }
-      menteeIdObj = new Types.ObjectId(targetUser._id);
+      menteeIdObj = targetUserId;
       mentorIdObj = userId;
     } else {
       return genericError;
     }
 
     // Check if there's an active conversation first
-    let existingActiveConversation = await Conversation.findOne({
+    const existingActiveConversation = await Conversation.findOne({
       mentorId: mentorIdObj,
       menteeId: menteeIdObj,
       status: "ACTIVE",
     }).lean();
 
     // If there's an active conversation, return it instead of creating a new one
-    if (existingActiveConversation) {
+    if (existingActiveConversation && !Array.isArray(existingActiveConversation)) {
       const otherUserId = auth.role === "mentor" ? menteeIdObj : mentorIdObj;
       const otherUser = await User.findById(otherUserId).select("name email role").lean();
+      if (!otherUser || Array.isArray(otherUser)) {
+        return genericError;
+      }
       return NextResponse.json(
         {
-          id: existingActiveConversation._id.toString(),
-          mentorId: existingActiveConversation.mentorId.toString(),
-          menteeId: existingActiveConversation.menteeId.toString(),
+          id: String(existingActiveConversation._id),
+          mentorId: String(existingActiveConversation.mentorId),
+          menteeId: String(existingActiveConversation.menteeId),
           goal: existingActiveConversation.goal,
           focusAreas: existingActiveConversation.focusAreas,
           sessionType: existingActiveConversation.sessionType,
@@ -113,7 +117,7 @@ export async function POST(req: NextRequest) {
           createdAt: existingActiveConversation.createdAt,
           otherParticipant: otherUser
             ? {
-                id: otherUser._id.toString(),
+                id: String(otherUser._id),
                 name: otherUser.name,
                 fullName: otherUser.name,
                 email: otherUser.email,
@@ -161,6 +165,10 @@ export async function POST(req: NextRequest) {
     // Get other participant info for response
     const otherUserId = auth.role === "mentor" ? menteeIdObj : mentorIdObj;
     const otherUser = await User.findById(otherUserId).select("name email role").lean();
+    
+    if (!otherUser || Array.isArray(otherUser)) {
+      return genericError;
+    }
 
     return NextResponse.json(
       {
@@ -177,15 +185,13 @@ export async function POST(req: NextRequest) {
         lastMessagePreview: conversation.lastMessagePreview,
         updatedAt: conversation.updatedAt,
         createdAt: conversation.createdAt,
-        otherParticipant: otherUser
-          ? {
-              id: otherUser._id.toString(),
-              name: otherUser.name,
-              fullName: otherUser.name,
-              email: otherUser.email,
-              role: otherUser.role,
-            }
-          : null,
+        otherParticipant: {
+          id: String(otherUser._id),
+          name: otherUser.name,
+          fullName: otherUser.name,
+          email: otherUser.email,
+          role: otherUser.role,
+        },
       },
       {
         status: 201,
@@ -206,7 +212,12 @@ export async function POST(req: NextRequest) {
           .select("_id role")
           .lean();
 
-        if (!targetUser || targetUser._id.equals(userId)) {
+        if (!targetUser || Array.isArray(targetUser)) {
+          return errors.validation("Unable to start conversation");
+        }
+
+        const targetUserId = new Types.ObjectId(String(targetUser._id));
+        if (targetUserId.equals(userId)) {
           return errors.validation("Unable to start conversation");
         }
 
@@ -214,10 +225,10 @@ export async function POST(req: NextRequest) {
         let menteeIdObj: Types.ObjectId | null = null;
 
         if (auth.role === "mentee" && (targetUser.role === "mentor" || targetUser.role === "admin")) {
-          mentorIdObj = new Types.ObjectId(targetUser._id);
+          mentorIdObj = targetUserId;
           menteeIdObj = userId;
         } else if (auth.role === "mentor" && targetUser.role === "mentee") {
-          menteeIdObj = new Types.ObjectId(targetUser._id);
+          menteeIdObj = targetUserId;
           mentorIdObj = userId;
         } else {
           return errors.validation("Unable to start conversation");
@@ -229,14 +240,17 @@ export async function POST(req: NextRequest) {
             menteeId: menteeIdObj,
           }).lean();
           
-          if (existing) {
+          if (existing && !Array.isArray(existing)) {
             const otherUserId = auth.role === "mentor" ? menteeIdObj : mentorIdObj;
             const otherUser = await User.findById(otherUserId).select("name email role").lean();
+            if (!otherUser || Array.isArray(otherUser)) {
+              return errors.validation("Unable to start conversation");
+            }
             return NextResponse.json(
               {
-                id: existing._id.toString(),
-                mentorId: existing.mentorId.toString(),
-                menteeId: existing.menteeId.toString(),
+                id: String(existing._id),
+                mentorId: String(existing.mentorId),
+                menteeId: String(existing.menteeId),
                 goal: existing.goal,
                 focusAreas: existing.focusAreas,
                 sessionType: existing.sessionType,
@@ -247,15 +261,13 @@ export async function POST(req: NextRequest) {
                 lastMessagePreview: existing.lastMessagePreview,
                 updatedAt: existing.updatedAt,
                 createdAt: existing.createdAt,
-                otherParticipant: otherUser
-                  ? {
-                      id: otherUser._id.toString(),
-                      name: otherUser.name,
-                      fullName: otherUser.name,
-                      email: otherUser.email,
-                      role: otherUser.role,
-                    }
-                  : null,
+                otherParticipant: {
+                  id: String(otherUser._id),
+                  name: otherUser.name,
+                  fullName: otherUser.name,
+                  email: otherUser.email,
+                  role: otherUser.role,
+                },
               },
               {
                 headers: {

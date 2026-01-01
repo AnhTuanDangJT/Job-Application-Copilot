@@ -14,7 +14,7 @@ import mongoose from "mongoose";
  */
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await requireAdmin(req);
   if (auth instanceof NextResponse) return auth; // Error response
@@ -22,7 +22,7 @@ export async function DELETE(
   try {
     await connectToDatabase();
 
-    const userId = params.id;
+    const { id: userId } = await params;
 
     // Validate MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -31,7 +31,7 @@ export async function DELETE(
 
     // Find user to delete
     const userToDelete = await User.findById(userId).lean();
-    if (!userToDelete) {
+    if (!userToDelete || Array.isArray(userToDelete)) {
       return errors.notFound("User not found");
     }
 

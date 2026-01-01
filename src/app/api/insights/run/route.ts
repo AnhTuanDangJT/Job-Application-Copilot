@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
 
     // Get user's document text
     const user = await User.findById(auth.sub).select("cv_text cover_letter_text").lean();
-    if (!user) {
+    if (!user || Array.isArray(user)) {
       return errors.notFound("User not found");
     }
 
@@ -74,10 +74,10 @@ export async function POST(req: NextRequest) {
       inputHash,
     }).lean();
 
-    if (existingInsight) {
+    if (existingInsight && !Array.isArray(existingInsight)) {
       return NextResponse.json({
-        id: existingInsight._id.toString(),
-        conversationId: existingInsight.conversationId.toString(),
+        id: String(existingInsight._id),
+        conversationId: String(existingInsight.conversationId),
         docType: existingInsight.docType,
         status: existingInsight.status,
         approvalStatus: existingInsight.approvalStatus,
@@ -145,14 +145,14 @@ async function processInsightAsync(
 
     // Get conversation to notify participants
     const conversation = await Conversation.findById(conversationId).lean();
-    if (conversation) {
+    if (conversation && !Array.isArray(conversation)) {
       const title = `${docType === "resume" ? "Resume" : "Cover letter"} insights ready`;
       const body = `Insights have been generated for your ${docType}.`;
       const link = `/mentor-communication/${conversationId}`;
 
       // Notify mentor
       await createNotification(
-        conversation.mentorId.toString(),
+        String(conversation.mentorId),
         conversationId,
         "insight_ready",
         title,

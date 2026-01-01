@@ -10,7 +10,7 @@ import { Types } from "mongoose";
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { taskId: string } }
+  { params }: { params: Promise<{ taskId: string }> }
 ) {
   // Rate limiting
   const rateLimitResult = await rateLimiters.api(req);
@@ -22,7 +22,7 @@ export async function PATCH(
   const auth = requireRole(req, ["mentee"]);
   if (auth instanceof Response) return auth;
 
-  const { taskId } = params;
+  const { taskId } = await params;
 
   // Validate taskId format
   if (!taskId || !isValidObjectId(taskId)) {

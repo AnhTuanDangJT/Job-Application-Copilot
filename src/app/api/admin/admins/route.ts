@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
       .select("name email role createdAt")
       .lean();
 
-    if (!adminUser) {
+    if (!adminUser || Array.isArray(adminUser)) {
       return NextResponse.json({
         admins: [],
         message: "Admin user not found in database"

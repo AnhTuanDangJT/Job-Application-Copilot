@@ -31,8 +31,8 @@ export async function PATCH(
   const auth = requireAuth(req);
   if (!auth) return errors.unauthorized("Authentication required");
 
-  // Check if user is mentor or admin
-  if (auth.role !== "mentor" && auth.role !== "admin") {
+  // Check if user is mentor or admin (admin status is in isAdmin flag, not role)
+  if (auth.role !== "mentor" && !auth.isAdmin) {
     return errors.forbidden("Only mentors can approve insights");
   }
 
@@ -69,7 +69,7 @@ export async function PATCH(
     const conversation = accessCheck.conversation as { mentorId: Types.ObjectId };
     const userId = new Types.ObjectId(auth.sub);
     const mentorId = conversation.mentorId instanceof Types.ObjectId ? conversation.mentorId : new Types.ObjectId(conversation.mentorId as unknown as string);
-    if (!mentorId.equals(userId) && auth.role !== "admin") {
+    if (!mentorId.equals(userId) && !auth.isAdmin) {
       return errors.forbidden("Only the mentor for this conversation can approve insights");
     }
 
