@@ -6,19 +6,43 @@ import { connectToDatabase } from "@/lib/db";
 import { Conversation } from "@/models/Conversation";
 import { User } from "@/models/User";
 import { Types } from "mongoose";
-import { isValidObjectId } from "@/lib/validation";
+import { isValidObjectId, isValidConversationId } from "@/lib/validation";
 import ConversationPageClient from "@/components/mentorCommunication/ConversationPageClient";
 
 interface ConversationPageProps {
   params: Promise<{ conversationId: string }>;
 }
 
-async function getConversationData(conversationId: string) {
+async function getConversationData(conversationId: string): Promise<{
+  conversation: {
+    id: string;
+    mentorId: string;
+    menteeId: string;
+    goal?: string;
+    focusAreas?: string[];
+    sessionType?: "RESUME_REVIEW" | "INTERVIEW" | undefined;
+    status?: "ACTIVE" | "COMPLETED" | "CANCELLED" | "ENDED";
+    startedAt?: Date;
+    completedAt?: Date;
+  };
+  otherParticipant: {
+    id: string;
+    name: string;
+    fullName?: string;
+    email?: string;
+    role: "mentee" | "mentor" | "admin";
+  } | null;
+  mentorInfo: { name: string; role: string } | null;
+  menteeInfo: { name: string; role: string } | null;
+  userRole: "mentee" | "mentor" | "admin";
+  currentUserName: string;
+} | null> {
   try {
-    // A) Validate conversationId before querying
-    if (!conversationId || typeof conversationId !== "string" || !isValidObjectId(conversationId)) {
+    // A) Validate conversationId before querying - CRITICAL: Never fetch with invalid IDs
+    if (!isValidConversationId(conversationId)) {
       console.error("[CONVERSATION] Invalid conversationId format:", conversationId);
-      notFound();
+      // Return null instead of calling notFound() - caller will handle fallback UI
+      return null;
     }
 
     const payload = await getServerAuth();
@@ -195,28 +219,44 @@ async function getConversationData(conversationId: string) {
   }
 }
 
+// Safe fallback UI component for invalid conversationIds
+function ConversationLoadingFallback() {
+  return (
+    <div className="flex items-center justify-center h-full min-h-screen bg-gray-50">
+      <div className="text-center space-y-4 p-8">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#734C23] mx-auto"></div>
+        <p className="text-gray-600 text-lg">Preparing conversation...</p>
+      </div>
+    </div>
+  );
+}
+
 export default async function ConversationPage({ params }: ConversationPageProps) {
   try {
     const { conversationId } = await params;
     
-    // Validate conversationId exists
-    if (!conversationId) {
-      console.error("[CONVERSATION] Missing conversationId in params");
-      notFound();
+    // CRITICAL: Early validation - check for invalid IDs BEFORE any data fetching
+    // This prevents 404 crashes when conversationId is "uploading..." or other invalid values
+    if (!isValidConversationId(conversationId)) {
+      console.log("[CONVERSATION] Invalid conversationId detected (likely placeholder), showing loading state:", conversationId);
+      // Return safe fallback UI instead of calling notFound() - prevents crash during uploads
+      return <ConversationLoadingFallback />;
     }
 
+    // Only fetch data if conversationId is valid
     const data = await getConversationData(conversationId);
 
-    // Safety check - if data is undefined (shouldn't happen due to notFound, but TypeScript safety)
+    // Handle case where getConversationData returns null (invalid ID was caught inside)
     if (!data) {
-      console.error("[CONVERSATION] getConversationData returned undefined for:", conversationId);
-      notFound();
+      console.log("[CONVERSATION] getConversationData returned null for invalid ID:", conversationId);
+      return <ConversationLoadingFallback />;
     }
 
     // D) Prevent undefined usage in UI - guard every usage
     if (!data.conversation || !data.userRole) {
       console.error("[CONVERSATION] Missing required data fields:", { conversationId, hasConversation: !!data.conversation, hasUserRole: !!data.userRole });
-      notFound();
+      // Return fallback UI instead of crashing
+      return <ConversationLoadingFallback />;
     }
 
     return (
@@ -235,13 +275,13 @@ export default async function ConversationPage({ params }: ConversationPageProps
       stack: error instanceof Error ? error.stack : undefined,
     });
     
-    // If it's a notFound() call, re-throw it
+    // If it's a notFound() call, re-throw it (for legitimate 404s, not invalid placeholders)
     if (error && typeof error === "object" && "digest" in error) {
       throw error; // Re-throw Next.js notFound() error
     }
     
-    // For other errors, return notFound to show friendly UI instead of 500
-    notFound();
+    // For other errors, show fallback UI instead of crashing
+    return <ConversationLoadingFallback />;
   }
 }
 

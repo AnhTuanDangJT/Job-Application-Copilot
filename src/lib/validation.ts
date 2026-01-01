@@ -359,6 +359,19 @@ export function isValidObjectId(id: string): boolean {
   return /^[0-9a-fA-F]{24}$/.test(id);
 }
 
+// Helper to validate conversationId - checks for invalid placeholders and valid ObjectId format
+export function isValidConversationId(id: string | undefined | null): boolean {
+  if (!id || typeof id !== "string") {
+    return false;
+  }
+  // Reject common placeholder values
+  if (id === "uploading..." || id.trim() === "" || id.toLowerCase() === "undefined" || id.toLowerCase() === "null") {
+    return false;
+  }
+  // Must be a valid MongoDB ObjectId
+  return isValidObjectId(id);
+}
+
 // Helper function to validate query parameters
 export function validateQueryParams<T>(
   searchParams: URLSearchParams,
