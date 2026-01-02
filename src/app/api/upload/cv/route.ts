@@ -4,11 +4,11 @@ import { connectToDatabase } from "@/lib/db";
 import { User } from "@/models/User";
 import { rateLimiters } from "@/lib/rateLimit";
 import { errors } from "@/lib/errors";
-import { saveUserFile, deleteUserFile } from "@/lib/fileStorage";
 import { extractResumeText } from "@/lib/resume/extractText";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   try {
@@ -38,10 +38,15 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate file type
+    const ALLOWED_TYPES = [
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+    
     const fileExtension = "." + file.name.split(".").pop()?.toLowerCase();
-    const allowedTypes = ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
     const allowedExtensions = [".pdf", ".docx"];
-    const isValidType = allowedTypes.includes(file.type) || allowedExtensions.includes(fileExtension);
+    const isValidType = ALLOWED_TYPES.includes(file.type) || allowedExtensions.includes(fileExtension);
     
     if (!isValidType) {
       return errors.validation(`Invalid file type. Only PDF and DOCX files are allowed.`);
@@ -52,9 +57,6 @@ export async function POST(req: NextRequest) {
     const isDOCX = 
       file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
       fileExtension === ".docx";
-
-    // Validate file size (5MB max)
-    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
     if (file.size === 0) {
       return errors.validation("File is empty");
     }
@@ -120,34 +122,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Get existing user to check for old file
-    const existingUser = await User.findById(auth.sub).select("cv_storage_path");
-    const oldStoragePath = existingUser?.cv_storage_path;
-
-    // Save file to disk
-    let storagePath: string;
-    try {
-      storagePath = await saveUserFile(auth.sub, "cv", file.name, buffer);
-    } catch (fileError) {
-      console.error("[CV Upload] File save error:", fileError);
-      return errors.internal("Failed to save file to storage. Please try again.");
-    }
-
-    // Delete old file if it exists
-    if (oldStoragePath) {
-      await deleteUserFile(oldStoragePath);
-    }
-
     // Update database with file info and extracted text
+    // NOTE: Files are NOT saved to disk on Vercel (serverless functions are stateless)
+    // Only the extracted text and metadata are stored in the database
     const updateData: {
       cv_filename: string;
-      cv_storage_path: string;
       cv_uploaded_at: Date;
       cv_text?: string;
+      cv_storage_path?: null; // Clear storage path (not used on Vercel)
     } = {
       cv_filename: file.name,
-      cv_storage_path: storagePath,
       cv_uploaded_at: new Date(),
+      cv_storage_path: null, // Vercel doesn't support persistent file storage
     };
 
     // Only add cv_text if extraction was successful
@@ -173,25 +159,23 @@ export async function POST(req: NextRequest) {
       // Verify cv_text was saved
       const savedText = updateResult.cv_text;
       const textLength = savedText ? savedText.length : 0;
-      console.log(`[CV Upload] Successfully saved - filename="${updateResult.cv_filename}", storage="${storagePath}"`);
+      console.log(`[CV Upload] Successfully saved - filename="${updateResult.cv_filename}"`);
       console.log(`[CV Upload] cv_text saved: ${textLength > 0 ? 'YES' : 'NO'}, length=${textLength}`);
       
       if (extractedText && textLength === 0) {
         console.error(`[CV Upload] WARNING: Text was extracted (${extractedText.length} chars) but cv_text is empty in DB!`);
       }
     } catch (dbUpdateError) {
-      // If DB update fails, try to clean up the saved file
-      await deleteUserFile(storagePath);
       const errorMessage = dbUpdateError instanceof Error ? dbUpdateError.message : "Unknown error";
       console.error("[CV Upload] Database update error:", errorMessage);
       return errors.internal("Failed to save CV to database. Please try again.");
     }
 
     // Return success response with required format
+    // NOTE: fileUrl is not included as files are not stored on Vercel (serverless functions are stateless)
     return NextResponse.json({
       success: true,
       text: extractedText || "",
-      fileUrl: storagePath,
       fileName: file.name,
     });
   } catch (error) {
