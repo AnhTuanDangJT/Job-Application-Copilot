@@ -4,11 +4,11 @@ import { connectToDatabase } from "@/lib/db";
 import { User } from "@/models/User";
 import { rateLimiters } from "@/lib/rateLimit";
 import { errors } from "@/lib/errors";
-import { saveUserFile, deleteUserFile } from "@/lib/fileStorage";
 import { extractResumeText } from "@/lib/resume/extractText";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 const ALLOWED_TYPES = ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -127,44 +127,29 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Get existing user to check for old file
-    const existingUser = await User.findById(auth.sub).select("cover_letter_storage_path");
-    const oldStoragePath = existingUser?.cover_letter_storage_path;
+    // Update database with file info and extracted text
+    // NOTE: Files are NOT saved to disk on Vercel (serverless functions are stateless)
+    // Only the extracted text and metadata are stored in the database
+    const updateData: {
+      cover_letter_filename: string;
+      cover_letter_uploaded_at: Date;
+      cover_letter_text?: string;
+      cover_letter_storage_path?: null; // Clear storage path (not used on Vercel)
+    } = {
+      cover_letter_filename: file.name,
+      cover_letter_uploaded_at: new Date(),
+      cover_letter_storage_path: null, // Vercel doesn't support persistent file storage
+    };
 
-    // Save file to disk
-    let storagePath: string;
-    try {
-      storagePath = await saveUserFile(auth.sub, "coverletter", file.name, buffer);
-    } catch (fileError) {
-      console.error("[Cover Letter Upload] File save error:", fileError);
-      return errors.internal("Failed to save file to storage. Please try again.");
+    // Only add cover_letter_text if extraction was successful
+    if (extractedText && extractedText.trim().length > 0) {
+      updateData.cover_letter_text = extractedText.trim();
     }
 
-    // Delete old file if it exists
-    if (oldStoragePath) {
-      await deleteUserFile(oldStoragePath);
-    }
+    console.log("[UPLOAD] Saving text to DB...");
 
+    // Update user document
     try {
-      // Store filename, storage path, timestamp, and extracted text
-      const updateData: {
-        cover_letter_filename: string;
-        cover_letter_storage_path: string;
-        cover_letter_uploaded_at: Date;
-        cover_letter_text?: string;
-      } = {
-        cover_letter_filename: file.name,
-        cover_letter_storage_path: storagePath,
-        cover_letter_uploaded_at: new Date(),
-      };
-
-      // Only add cover_letter_text if extraction was successful
-      if (extractedText && extractedText.trim().length > 0) {
-        updateData.cover_letter_text = extractedText.trim();
-      }
-
-      console.log("[UPLOAD] Saving text to DB...");
-
       const updateResult = await User.findByIdAndUpdate(
         auth.sub,
         updateData,
@@ -172,8 +157,6 @@ export async function POST(req: NextRequest) {
       );
 
       if (!updateResult) {
-        // If DB update fails, try to clean up the saved file
-        await deleteUserFile(storagePath);
         console.error("[Cover Letter Upload] User not found:", auth.sub);
         return errors.notFound("User not found");
       }
@@ -181,24 +164,23 @@ export async function POST(req: NextRequest) {
       // Verify cover_letter_text was saved
       const savedText = updateResult.cover_letter_text;
       const textLength = savedText ? savedText.length : 0;
-      console.log(`[Cover Letter Upload] Successfully saved - filename="${updateResult.cover_letter_filename}", storage="${storagePath}"`);
+      console.log(`[Cover Letter Upload] Successfully saved - filename="${updateResult.cover_letter_filename}"`);
       console.log(`[Cover Letter Upload] cover_letter_text saved: ${textLength > 0 ? 'YES' : 'NO'}, length=${textLength}`);
       
       if (extractedText && textLength === 0) {
         console.error(`[Cover Letter Upload] WARNING: Text was extracted (${extractedText.length} chars) but cover_letter_text is empty in DB!`);
       }
     } catch (dbUpdateError) {
-      // If DB update fails, try to clean up the saved file
-      await deleteUserFile(storagePath);
-      console.error("Database update error:", dbUpdateError);
+      const errorMessage = dbUpdateError instanceof Error ? dbUpdateError.message : "Unknown error";
+      console.error("[Cover Letter Upload] Database update error:", errorMessage);
       return errors.internal("Failed to save cover letter to database. Please try again.");
     }
 
     // Return success response with required format
+    // NOTE: fileUrl is not included as files are not stored on Vercel (serverless functions are stateless)
     return NextResponse.json({
       success: true,
       text: extractedText || "",
-      fileUrl: storagePath,
       fileName: file.name,
     });
   } catch (error) {
