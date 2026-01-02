@@ -4,7 +4,8 @@ export interface IResumeShare extends Document {
   conversationId: Types.ObjectId;
   sharedBy: Types.ObjectId;
   sharedTo: Types.ObjectId;
-  storagePath: string;
+  storagePath?: string; // Optional for backward compatibility (legacy filesystem storage)
+  fileContent?: Buffer; // Vercel-safe: Store file content in MongoDB as Buffer
   originalName: string;
   mimeType: string;
   size: number;
@@ -24,7 +25,8 @@ const ResumeShareSchema = new Schema<IResumeShare>(
     conversationId: { type: Schema.Types.ObjectId, ref: "Conversation", required: true, index: true },
     sharedBy: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
     sharedTo: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    storagePath: { type: String, required: true },
+    storagePath: { type: String, required: false }, // Optional for backward compatibility
+    fileContent: { type: Buffer, required: false }, // Vercel-safe: Store file content in MongoDB
     originalName: { type: String, required: true },
     mimeType: { type: String, required: true },
     size: { type: Number, required: true },

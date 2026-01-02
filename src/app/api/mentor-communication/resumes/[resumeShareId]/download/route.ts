@@ -5,8 +5,7 @@ import { ResumeShare } from "@/models/ResumeShare";
 import { rateLimiters } from "@/lib/rateLimit";
 import { errors } from "@/lib/errors";
 import { assertConversationAccess } from "@/lib/mentorCommunication/access";
-import { readFileSync, existsSync } from "fs";
-import path from "path";
+// Removed filesystem imports - using MongoDB storage for Vercel compatibility
 import { isValidObjectId } from "@/lib/validation";
 
 export const runtime = "nodejs";
@@ -35,8 +34,8 @@ export async function GET(
       return errors.notFound("Resume not found");
     }
 
-    // Find ResumeShare
-    const resumeShare = await ResumeShare.findById(resumeShareId).lean();
+    // Find ResumeShare - don't use lean() when we need Buffer (fileContent)
+    const resumeShare = await ResumeShare.findById(resumeShareId);
     if (!resumeShare) {
       return errors.notFound("Resume not found");
     }
@@ -50,42 +49,58 @@ export async function GET(
       return accessCheck.response;
     }
 
-    /**
-     * Normalize stored path
-     * Examples we accept:
-     *  - uploads/userId/resumes/file.pdf
-     *  - uploads\userId\resumes\file.pdf
-     */
-    const normalizedRelativePath = resumeShare.storagePath
-      .replace(/\\/g, "/")
-      .replace(/^\/+/, "");
-
-    // Absolute uploads directory
-    const uploadsDir = path.resolve(process.cwd(), "uploads");
-
-    // Resolve absolute file path
-    const absoluteFilePath = path.resolve(
-      process.cwd(),
-      normalizedRelativePath
-    );
-
-    // SECURITY CHECK — must be inside /uploads
-    if (!absoluteFilePath.startsWith(uploadsDir)) {
-      console.error("Blocked invalid file path:", absoluteFilePath);
+    // Vercel-safe: Serve file content from MongoDB Buffer (preferred) or legacy filesystem
+    let fileBuffer: Buffer;
+    
+    if (resumeShare.fileContent) {
+      // New MongoDB storage (Vercel-safe)
+      fileBuffer = Buffer.isBuffer(resumeShare.fileContent) 
+        ? resumeShare.fileContent 
+        : Buffer.from(resumeShare.fileContent);
+    } else if (resumeShare.storagePath) {
+      // Legacy filesystem storage (for backward compatibility with existing records)
+      // Note: This will fail on Vercel but allows existing local/test records to work
+      try {
+        const fs = await import("fs");
+        const path = await import("path");
+        
+        const normalizedRelativePath = resumeShare.storagePath
+          .replace(/\\/g, "/")
+          .replace(/^\/+/, "");
+        
+        const absoluteFilePath = path.resolve(process.cwd(), normalizedRelativePath);
+        
+        // SECURITY CHECK — must be inside /uploads
+        const uploadsDir = path.resolve(process.cwd(), "uploads");
+        if (!absoluteFilePath.startsWith(uploadsDir)) {
+          console.error("Blocked invalid file path:", absoluteFilePath);
+          return NextResponse.json(
+            { error: "Invalid file path" },
+            { status: 500 }
+          );
+        }
+        
+        if (!fs.existsSync(absoluteFilePath)) {
+          return NextResponse.json(
+            { error: "File not found on filesystem. Please re-upload the resume." },
+            { status: 404 }
+          );
+        }
+        
+        fileBuffer = fs.readFileSync(absoluteFilePath);
+      } catch (fsError) {
+        console.error("[Resume Download] Filesystem read error (expected on Vercel):", fsError);
+        return NextResponse.json(
+          { error: "File not available. This resume needs to be re-uploaded." },
+          { status: 404 }
+        );
+      }
+    } else {
       return NextResponse.json(
-        { error: "Invalid file path" },
-        { status: 500 }
-      );
-    }
-
-    if (!existsSync(absoluteFilePath)) {
-      return NextResponse.json(
-        { error: "File not found" },
+        { error: "File content not found. Please re-upload the resume." },
         { status: 404 }
       );
     }
-
-    const fileBuffer = readFileSync(absoluteFilePath);
 
     return new NextResponse(fileBuffer, {
       headers: {

@@ -7,11 +7,12 @@ import { Conversation } from "@/models/Conversation";
 import { rateLimiters } from "@/lib/rateLimit";
 import { errors } from "@/lib/errors";
 import { assertConversationAccess, getOtherParticipant } from "@/lib/mentorCommunication/access";
-import { saveUserFile, deleteUserFile } from "@/lib/fileStorage";
+// Removed filesystem imports - using MongoDB storage for Vercel compatibility
 import { Types } from "mongoose";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 const ALLOWED_TYPES = [
   "application/pdf",
@@ -187,14 +188,8 @@ export async function POST(
       return errors.validation("Invalid file buffer");
     }
 
-    // Save file to disk
-    let storagePath: string;
-    try {
-      storagePath = await saveUserFile(auth.sub, "resumes", file.name, buffer);
-    } catch (fileError) {
-      console.error("[Resume Upload] File save error:", fileError);
-      return errors.internal("Failed to save file to storage. Please try again.");
-    }
+    // Vercel-safe: Store file content in MongoDB instead of filesystem
+    // No filesystem writes - all file content stored as Buffer in MongoDB
 
     // Create ResumeShare entry and Message atomically
     // Clean up file if DB write fails
@@ -219,7 +214,7 @@ export async function POST(
         conversationId: new Types.ObjectId(id),
         sharedBy: sharedBy,
         sharedTo: sharedTo,
-        storagePath,
+        fileContent: buffer, // Store file content in MongoDB (Vercel-safe)
         originalName: file.name,
         mimeType: file.type || "application/pdf",
         size: file.size,
@@ -276,19 +271,16 @@ export async function POST(
         }
       );
     } catch (dbError) {
-      // If DB operations fail, clean up the file
-      console.error("[Resume Upload] DB error after file save:", dbError);
-      try {
-        await deleteUserFile(storagePath);
-      } catch (cleanupError) {
-        console.error("[Resume Upload] Failed to cleanup file:", cleanupError);
-      }
-      return errors.internal("Failed to save resume information. Please try again.");
+      // DB operations failed - no cleanup needed (file content stored in DB transaction)
+      console.error("[Resume Upload] DB error:", dbError);
+      const errorMessage = dbError instanceof Error ? dbError.message : "Unknown error";
+      return errors.internal(`Failed to save resume information: ${errorMessage}`);
     }
 
   } catch (error) {
     console.error("Upload resume error:", error instanceof Error ? error.message : "Unknown error");
-    return errors.internal("An error occurred while uploading resume");
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    return errors.internal(`An error occurred while uploading resume: ${errorMessage}`);
   }
 }
 

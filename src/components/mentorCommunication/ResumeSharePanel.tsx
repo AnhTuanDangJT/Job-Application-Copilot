@@ -181,8 +181,10 @@ function ResumeSharePanel({ conversationId, userRole }: ResumeSharePanelProps) {
       } else if (response.status === 403 || response.status === 404) {
         throw new Error("Cannot upload. Conversation may have been deleted.");
       } else if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: "Failed to upload resume" }));
-        throw new Error(errorData.message || "Failed to upload resume");
+        const errorData = await response.json().catch(() => ({ error: "Failed to upload resume" }));
+        // Backend returns { error: string, message?: string }
+        const errorMessage = errorData.message || errorData.error || `Server error (${response.status})`;
+        throw new Error(errorMessage);
       }
 
       return response.json();
